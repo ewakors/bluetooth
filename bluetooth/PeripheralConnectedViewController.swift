@@ -59,12 +59,12 @@ extension PeripheralConnectedViewController: UITableViewDataSource{
 
 extension PeripheralConnectedViewController: CBPeripheralDelegate {
     func centralManager(_ central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        print("Error connecting peripheral: \(error?.localizedDescription)")
+        print("Error connecting peripheral: \(String(describing: error?.localizedDescription))")
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if error != nil {
-            print("Error discovering services: \(error?.localizedDescription)")
+            print("Error discovering services: \(String(describing: error?.localizedDescription))")
         }
         
         peripheral.services?.forEach({ (service) in
@@ -76,24 +76,20 @@ extension PeripheralConnectedViewController: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if error != nil {
-            print("Error discovering service characteristics: \(error?.localizedDescription)")
+            print("Error discovering service characteristics: \(String(describing: error?.localizedDescription))")
         }
         
         service.characteristics?.forEach({ (characteristic) in
-            print("\(characteristic.descriptors)---\(characteristic.properties)")
+            print("\(String(describing: characteristic.descriptors))---\(characteristic.properties)")
         })
     }
     
-    func peripheral(peripheral: CBPeripheral,
-                    didUpdateValueForCharacteristic characteristic: CBCharacteristic,
-                    error: NSError?)
-    {
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
             print("Failed… error: \(error)")
             return
         }
-        
-        print("characteristic uuid: \(characteristic.uuid), value: \(characteristic.value)")
+        print("characteristic uuid: \(characteristic.uuid), value: \(String(describing: characteristic.value))")
     }
     
     func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
