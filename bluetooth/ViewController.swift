@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     var selectedPeripheral: CBPeripheral?
     var peripherals: [DisplayPeripheral] = []
     var services: [CBService] = []
-    var viewReloadTimer: Timer?
+    var connected: Bool?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -106,6 +106,8 @@ extension ViewController: CBCentralManagerDelegate {
         
         let isConnectable = advertisementData["kCBAdvDataIsConnectable"] as! Bool
         let displayPeripheral = DisplayPeripheral(peripheral: peripheral, lastRSSI: RSSI, isConnectable: isConnectable)
+
+        connected = true
 //        if peripheral.name == deviceName || peripheral.identifier.uuidString == deviceIdentifier {
 //            centralManager.stopScan()
 //            centralManager?.connect(peripheral, options: nil)
@@ -191,8 +193,8 @@ extension ViewController: CBPeripheralDelegate {
         }
        
         print("Succeeded!")
-        
     }
+    
 }
 
 extension ViewController: UITableViewDataSource {
@@ -214,6 +216,14 @@ extension ViewController: DeviceCellDelegate{
             selectedPeripheral = peripheral
             peripheral.delegate = self
             centralManager?.connect(peripheral, options: nil)
+        } else if peripheral.state == .connected {
+            selectedPeripheral = peripheral
+            peripheral.delegate = self
+            centralManager.cancelPeripheralConnection(peripheral)
         }
+    }
+    
+    func deviceIsConnected(isConnected: Bool) {
+        return connected = true
     }
 }

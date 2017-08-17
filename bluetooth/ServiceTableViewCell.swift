@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreBluetooth
+
 
 class ServiceTableViewCell: UITableViewCell {
 

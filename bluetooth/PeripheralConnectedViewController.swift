@@ -16,16 +16,15 @@ class PeripheralConnectedViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
     
     var peripheral: CBPeripheral?
-    var rssiReloadTimer: Timer?
     var services: [CBService] = []
+    
+    var displayPeripheral: DisplayPeripheral?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         peripheral?.delegate = self
         peripheralName.text = peripheral?.name
-                
-        rssiReloadTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(PeripheralConnectedViewController.refreshRSSI), userInfo: nil, repeats: true)
     }
 
     func refreshRSSI(){
@@ -38,8 +37,15 @@ class PeripheralConnectedViewController: UIViewController {
         }, completion: {_ in
             self.dismiss(animated: false, completion: nil)
         })
+        
+        if peripheral?.state == .connected {
+            
+            peripheral?.delegate = self
+            displayPeripheral?.isConnectable = true
+        }
+        
+        print("disconnect pressed")
     }
-
 }
 
 extension PeripheralConnectedViewController: UITableViewDataSource{
@@ -51,8 +57,6 @@ extension PeripheralConnectedViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = self.tableView.dequeueReusableCell(withIdentifier: "ServiceCell") as! ServiceTableViewCell
         cell.serviceNameLabel.text = "service"
-        //"\(services[indexPath.row].uuid)"
-        print("service \(services[indexPath.row].uuid)")
         return cell
     }
 }
