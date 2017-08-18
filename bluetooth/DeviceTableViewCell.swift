@@ -11,7 +11,6 @@ import CoreBluetooth
 
 protocol DeviceCellDelegate: class {
     func connectPressed(_ peripheral: CBPeripheral)
-    func deviceIsConnected(isConnected: Bool)
 }
 
 class DeviceTableViewCell: UITableViewCell {

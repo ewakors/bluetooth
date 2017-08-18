@@ -28,10 +28,10 @@ class ViewController: UIViewController {
     static let disconnectValue = "2D30C084-F39F-4CE6-923F-3484EA480596"
     
     var centralManager: CBCentralManager!
+    
     var selectedPeripheral: CBPeripheral?
     var peripherals: [DisplayPeripheral] = []
     var services: [CBService] = []
-    var connected: Bool?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -39,19 +39,20 @@ class ViewController: UIViewController {
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
     }
     
-    func startScanning(){
+    func startScanning() {
         peripherals = []
-        self.centralManager?.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+        
+        centralManager.scanForPeripherals(withServices: nil, options: nil)
+        
         let triggerTime = (Int64(NSEC_PER_SEC) * 10)
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(triggerTime) / Double(NSEC_PER_SEC), execute: { () -> Void in
-            if self.centralManager!.isScanning{
-                self.centralManager?.stopScan()
+            if self.centralManager.isScanning{
+                self.centralManager.stopScan()
             }
         })
     }
     
-    func refreshScanView()
-    {
+    func refreshScanView() {
         if peripherals.count > 1 && centralManager!.isScanning{
             tableView.reloadData()
         }
@@ -67,6 +68,7 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: CBCentralManagerDelegate {
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         
         var message = ""
@@ -106,13 +108,6 @@ extension ViewController: CBCentralManagerDelegate {
         
         let isConnectable = advertisementData["kCBAdvDataIsConnectable"] as! Bool
         let displayPeripheral = DisplayPeripheral(peripheral: peripheral, lastRSSI: RSSI, isConnectable: isConnectable)
-
-        connected = true
-//        if peripheral.name == deviceName || peripheral.identifier.uuidString == deviceIdentifier {
-//            centralManager.stopScan()
-//            centralManager?.connect(peripheral, options: nil)
-//            
-//        }
         peripherals.append(displayPeripheral)
         tableView.reloadData()
     }
@@ -123,6 +118,7 @@ extension ViewController: CBCentralManagerDelegate {
 }
 
 extension ViewController: CBPeripheralDelegate {
+    
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         print("Error connecting peripheral: \(String(describing: error?.localizedDescription))")
     }
@@ -142,7 +138,6 @@ extension ViewController: CBPeripheralDelegate {
         
         peripheral.services?.forEach({ (service) in
             services.append(service)
-            tableView.reloadData()
             peripheral.discoverCharacteristics(nil, for: service)
         })
     }
@@ -221,9 +216,5 @@ extension ViewController: DeviceCellDelegate{
             peripheral.delegate = self
             centralManager.cancelPeripheralConnection(peripheral)
         }
-    }
-    
-    func deviceIsConnected(isConnected: Bool) {
-        return connected = true
     }
 }
